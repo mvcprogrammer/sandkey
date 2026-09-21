@@ -119,7 +119,7 @@ public static class ServiceCollectionExtensions
 
             options.AddPolicy(RateLimitingPolicies.Inquiries, static context =>
                 RateLimitPartition.GetFixedWindowLimiter(
-                    context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                    context.GetClientAddress(),
                     static _ => new FixedWindowRateLimiterOptions
                     {
                         PermitLimit = 10,

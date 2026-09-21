@@ -1,0 +1,279 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >-
+  SandKey display kiosk: one CloudFront distribution serving the web bundle from S3, the API
+  from a Lambda function URL, and listing photos from the Bridge media CDN.
+
+Parameters:
+  DomainName:
+    Type: String
+    Description: Hostname the kiosk opens. Must live in the hosted zone below.
+  HostedZoneId:
+    Type: AWS::Route53::HostedZone::Id
+    Description: Route 53 zone that holds the domain, used for the certificate and the alias.
+  ParameterStorePath:
+    Type: String
+    Description: Systems Manager path the API reads its secrets from (Part 6).
+    AllowedPattern: ^/.+[^/]$
+  MediaOriginDomain:
+    Type: String
+    Default: dvvjkgh94f2v6.cloudfront.net
+    Description: Bridge photo CDN, served under /media/* so image bytes never touch the API.
+
+Resources:
+
+  # ---------------------------------------------------------------------------------------------
+  # API
+  # ---------------------------------------------------------------------------------------------
+
+  ApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-api
+      Description: SandKey.Api.Display, ASP.NET Core hosted in Lambda.
+      CodeUri: api.zip
+      # With Amazon.Lambda.AspNetCoreServer.Hosting the handler is the assembly name.
+      Handler: SandKey.Api.Display
+      Runtime: dotnet10
+      Architectures: [arm64]
+      MemorySize: 1024
+      # Above the 10 second Bridge timeout plus the resilience handler's retries.
+      Timeout: 30
+      Environment:
+        Variables:
+          ASPNETCORE_ENVIRONMENT: Production
+          Aws__ParameterStorePath: !Ref ParameterStorePath
+      FunctionUrlConfig:
+        AuthType: AWS_IAM
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Sid: ReadOwnParameters
+              Effect: Allow
+              Action:
+                - ssm:GetParametersByPath
+                - ssm:GetParameters
+                - ssm:GetParameter
+              Resource: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${ParameterStorePath}/*
+            - Sid: DecryptSecureStrings
+              Effect: Allow
+              Action: kms:Decrypt
+              Resource: '*'
+              Condition:
+                StringEquals:
+                  kms:ViaService: !Sub ssm.${AWS::Region}.amazonaws.com
+
+  # CloudFront signs its requests to the function URL; this is what lets those signatures in.
+  ApiFunctionUrlPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunctionUrl
+      FunctionName: !Ref ApiFunction
+      FunctionUrlAuthType: AWS_IAM
+      Principal: cloudfront.amazonaws.com
+      SourceArn: !Sub arn:aws:cloudfront::${AWS::AccountId}:distribution/${Distribution}
+
+  # ---------------------------------------------------------------------------------------------
+  # Web bundle
+  # ---------------------------------------------------------------------------------------------
+
+  WebBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub ${AWS::StackName}-web-${AWS::AccountId}
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+
+  WebBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref WebBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllowCloudFrontRead
+            Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: s3:GetObject
+            Resource: !Sub ${WebBucket.Arn}/*
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub arn:aws:cloudfront::${AWS::AccountId}:distribution/${Distribution}
+
+  # ---------------------------------------------------------------------------------------------
+  # Edge
+  # ---------------------------------------------------------------------------------------------
+
+  Certificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Ref DomainName
+      ValidationMethod: DNS
+      DomainValidationOptions:
+        - DomainName: !Ref DomainName
+          HostedZoneId: !Ref HostedZoneId
+
+  WebOriginAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub ${AWS::StackName}-web
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  ApiOriginAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub ${AWS::StackName}-api
+        OriginAccessControlOriginType: lambda
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  # The kiosk is a single-page app with client-side routes, so any path that is not a file is
+  # served index.html. Scoped to the web behaviour only; API 404s are real 404s.
+  SpaRewriteFunction:
+    Type: AWS::CloudFront::Function
+    Properties:
+      Name: !Sub ${AWS::StackName}-spa-rewrite
+      AutoPublish: true
+      FunctionConfig:
+        Comment: Serve index.html for client-side routes.
+        Runtime: cloudfront-js-2.0
+      FunctionCode: |
+        function handler(event) {
+          var request = event.request;
+          if (!request.uri.includes('.')) {
+            request.uri = '/index.html';
+          }
+          return request;
+        }
+
+  # MediaResponse.Url is "/media" + the CDN path; the prefix exists only to pick this behaviour.
+  MediaRewriteFunction:
+    Type: AWS::CloudFront::Function
+    Properties:
+      Name: !Sub ${AWS::StackName}-media-rewrite
+      AutoPublish: true
+      FunctionConfig:
+        Comment: Strip the /media prefix before forwarding to the Bridge CDN.
+        Runtime: cloudfront-js-2.0
+      FunctionCode: |
+        function handler(event) {
+          var request = event.request;
+          request.uri = request.uri.replace(/^\/media/, '');
+          return request;
+        }
+
+  Distribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: SandKey display kiosk
+        Aliases: [!Ref DomainName]
+        HttpVersion: http2and3
+        PriceClass: PriceClass_100
+        DefaultRootObject: index.html
+        ViewerCertificate:
+          AcmCertificateArn: !Ref Certificate
+          SslSupportMethod: sni-only
+          MinimumProtocolVersion: TLSv1.2_2021
+        Origins:
+          - Id: web
+            DomainName: !GetAtt WebBucket.RegionalDomainName
+            OriginAccessControlId: !GetAtt WebOriginAccessControl.Id
+            S3OriginConfig:
+              OriginAccessIdentity: ''
+          - Id: api
+            # The function URL is https://<host>/ ; the origin wants only the host.
+            DomainName: !Select [2, !Split ['/', !GetAtt ApiFunctionUrl.FunctionUrl]]
+            OriginAccessControlId: !GetAtt ApiOriginAccessControl.Id
+            CustomOriginConfig:
+              OriginProtocolPolicy: https-only
+              OriginSSLProtocols: [TLSv1.2]
+          - Id: media
+            DomainName: !Ref MediaOriginDomain
+            CustomOriginConfig:
+              OriginProtocolPolicy: https-only
+              OriginSSLProtocols: [TLSv1.2]
+        DefaultCacheBehavior:
+          TargetOriginId: web
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods: [GET, HEAD]
+          Compress: true
+          # Managed-CachingOptimized
+          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
+          FunctionAssociations:
+            - EventType: viewer-request
+              FunctionARN: !GetAtt SpaRewriteFunction.FunctionMetadata.FunctionARN
+        CacheBehaviors:
+          - PathPattern: /api/*
+            TargetOriginId: api
+            ViewerProtocolPolicy: https-only
+            AllowedMethods: [GET, HEAD, OPTIONS, PUT, PATCH, POST, DELETE]
+            Compress: true
+            # Managed-CachingDisabled
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
+            # Managed-AllViewerExceptHostHeader: forwards query strings and every viewer header,
+            # including the body hash a signed POST needs, without breaking the function URL host.
+            OriginRequestPolicyId: b689b0a8-53d0-40ab-baf2-68738e2966ac
+          - PathPattern: /media/*
+            TargetOriginId: media
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods: [GET, HEAD]
+            Compress: true
+            # Managed-CachingOptimized
+            CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
+            FunctionAssociations:
+              - EventType: viewer-request
+                FunctionARN: !GetAtt MediaRewriteFunction.FunctionMetadata.FunctionARN
+
+  DnsAliasIpv4:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Ref DomainName
+      Type: A
+      AliasTarget:
+        DNSName: !GetAtt Distribution.DomainName
+        # CloudFront's fixed hosted zone id, the same in every account.
+        HostedZoneId: Z2FDTNDATAQYW2
+
+  DnsAliasIpv6:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Ref DomainName
+      Type: AAAA
+      AliasTarget:
+        DNSName: !GetAtt Distribution.DomainName
+        HostedZoneId: Z2FDTNDATAQYW2
+
+Outputs:
+  KioskUrl:
+    Description: What the kiosk PC opens.
+    Value: !Sub https://${DomainName}/
+  DistributionId:
+    Description: For cache invalidation after a web deploy.
+    Value: !Ref Distribution
+  DistributionDomain:
+    Description: Works before DNS does, for smoke tests.
+    Value: !GetAtt Distribution.DomainName
+  WebBucketName:
+    Description: Where the web bundle is synced.
+    Value: !Ref WebBucket
+  ApiFunctionName:
+    Value: !Ref ApiFunction

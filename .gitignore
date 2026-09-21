@@ -29,3 +29,8 @@ appsettings.Local.json
 # CDK
 infra/cdk.out/
 infra/node_modules/
+
+# Deployment artifacts (infra/deploy.sh)
+infra/.publish/
+infra/api.zip
+.aws-sam/

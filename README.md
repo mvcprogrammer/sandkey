@@ -118,6 +118,32 @@ symbols. The three South Beach hotspots and the two Lighthouse Towers hotspots s
 subdivision each — that is intentional, and `CondoServiceTests` asserts it so a future edit has to
 be deliberate about changing it.
 
+## Deployment
+
+Everything lives in one CloudFormation stack, `sandkey-display`, defined in `infra/template.yaml`
+(AWS SAM). It creates the Lambda function and its function URL, the S3 bucket for the web bundle,
+the certificate, the Route 53 alias, and one CloudFront distribution with three behaviours:
+
+| Path | Origin |
+|---|---|
+| `/api/*` | The function URL, reachable only with CloudFront's signature (origin access control) |
+| `/media/*` | The Bridge photo CDN, with the `/media` prefix stripped by a CloudFront Function |
+| everything else | The S3 bucket, with client-side routes rewritten to `index.html` |
+
+Because CloudFront signs requests to the function URL, a `POST` must carry the SHA-256 of its body
+in `x-amz-content-sha256`. The web client computes it; a `GET` needs nothing.
+
+```bash
+infra/deploy.sh        # publish the API, deploy the stack, build and sync the web bundle
+infra/deploy.sh api    # API and stack only
+infra/deploy.sh web    # web bundle only
+```
+
+The stack reads its secrets from Parameter Store under `/production/sandkey-api`; the two that
+must exist before the first deploy are `Bridge/AccessToken` and `Mail/ApiKey` as SecureStrings.
+`Mail/BccAddresses/0`, `/1`, and so on are optional. Nothing in this repository or the stack holds
+a credential.
+
 ## Tests
 
 122 tests. The suite concentrates on the things that were historically untested and wrong: the

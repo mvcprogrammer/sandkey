@@ -89,7 +89,9 @@ internal sealed class BridgeQueryFactory : IBridgeQueryFactory
 
         var subdivisionName = _condoService.FindSubdivisionName(request.Condo);
 
-        if (subdivisionName is not null)
+        // An empty filter matches nothing, so treat a blank name the same as an unknown condo
+        // rather than asking Bridge for listings in a subdivision that has no name.
+        if (!string.IsNullOrWhiteSpace(subdivisionName))
         {
             query.Append("&SubdivisionName.in=").Append(Uri.EscapeDataString(subdivisionName));
         }

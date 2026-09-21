@@ -12,6 +12,9 @@ namespace SandKey.Api.Display.Requests;
 /// </remarks>
 public sealed record InquiryRequest : IValidatableObject
 {
+    private readonly string? _emailAddress;
+    private readonly string? _phoneNumber;
+
     /// <summary>Listing the visitor is asking about.</summary>
     [Required]
     [MinLength(1)]
@@ -19,19 +22,28 @@ public sealed record InquiryRequest : IValidatableObject
 
     /// <summary>
     /// Address to send the listing details to. Supply this or <see cref="PhoneNumber"/>,
-    /// not both.
+    /// not both. A blank value is treated as absent, because the on-screen keyboard posts an
+    /// empty field rather than omitting it.
     /// </summary>
     [EmailAddress]
     [MaxLength(254)]
-    public string? EmailAddress { get; init; }
+    public string? EmailAddress
+    {
+        get => _emailAddress;
+        init => _emailAddress = Normalize(value);
+    }
 
     /// <summary>
     /// Number for the office to call back on. Supply this or <see cref="EmailAddress"/>,
-    /// not both.
+    /// not both. A blank value is treated as absent.
     /// </summary>
     [Phone]
     [MaxLength(32)]
-    public string? PhoneNumber { get; init; }
+    public string? PhoneNumber
+    {
+        get => _phoneNumber;
+        init => _phoneNumber = Normalize(value);
+    }
 
     /// <summary>
     /// Enforces that exactly one contact method is supplied, which decides whether the visitor
@@ -41,14 +53,17 @@ public sealed record InquiryRequest : IValidatableObject
     /// <returns>One result when neither or both contact methods are present; otherwise none.</returns>
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        var hasEmail = !string.IsNullOrWhiteSpace(EmailAddress);
-        var hasPhone = !string.IsNullOrWhiteSpace(PhoneNumber);
-
-        if (hasEmail == hasPhone)
+        if ((EmailAddress is not null) == (PhoneNumber is not null))
         {
             yield return new ValidationResult(
                 "Supply either an email address or a phone number, but not both.",
                 [nameof(EmailAddress), nameof(PhoneNumber)]);
         }
     }
+
+    /// <summary>Treats a blank value as absent, and trims what remains.</summary>
+    /// <param name="value">Value as supplied by the caller.</param>
+    /// <returns>The trimmed value, or null when it carries nothing.</returns>
+    private static string? Normalize(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 }

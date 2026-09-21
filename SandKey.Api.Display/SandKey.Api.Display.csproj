@@ -15,6 +15,8 @@
        models. Part 7 still requires them to be tested, hence this. -->
   <ItemGroup>
     <InternalsVisibleTo Include="SandKey.Api.Display.Test" />
+    <!-- NSubstitute proxies internal interfaces through Castle DynamicProxy. -->
+    <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
   </ItemGroup>
 
 </Project>

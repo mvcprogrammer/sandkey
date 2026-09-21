@@ -10,7 +10,7 @@ namespace SandKey.Api.Display.Requests;
 public sealed record ListingsQueryRequest : IValidatableObject
 {
     /// <summary>Sale or lease. Defaults to sale.</summary>
-    public ListingType Type { get; init; } = ListingType.Sale;
+    public ListingType Type { get; init; } = ListingType.SALE;
 
     /// <summary>
     /// Condominium hotspot id to restrict results to. Omit, or pass zero, for the whole of
@@ -20,10 +20,10 @@ public sealed record ListingsQueryRequest : IValidatableObject
     public int Condo { get; init; }
 
     /// <summary>Field to order by. Defaults to list price.</summary>
-    public SortField Sort { get; init; } = SortField.ListPrice;
+    public SortField Sort { get; init; } = SortField.LIST_PRICE;
 
     /// <summary>Direction to order in. Defaults to descending.</summary>
-    public SortDirection Order { get; init; } = SortDirection.Descending;
+    public SortDirection Order { get; init; } = SortDirection.DESCENDING;
 
     /// <summary>Zero-based page index.</summary>
     [Range(0, 1000)]

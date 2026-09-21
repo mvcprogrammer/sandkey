@@ -111,13 +111,13 @@ internal sealed class BridgeQueryFactory : IBridgeQueryFactory
 
     private static string ToPropertyType(ListingType listingType) => listingType switch
     {
-        ListingType.Lease => "Residential Lease",
+        ListingType.LEASE => "Residential Lease",
         _ => "Residential"
     };
 
     private static string ToOrder(SortDirection sortDirection) => sortDirection switch
     {
-        SortDirection.Ascending => "asc",
+        SortDirection.ASCENDING => "asc",
         _ => "desc"
     };
 }

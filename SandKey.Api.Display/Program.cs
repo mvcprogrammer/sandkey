@@ -3,12 +3,12 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using SandKey.Api.Display.Extensions;
 using SandKey.Api.Display.Policies;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // Part 6: configuration comes from environment variables and Parameter Store. appsettings.json
 // carries defaults only; the Bridge access token, the Mailgun API key, and the blind-copy
 // addresses are never in source control.
-var parameterStorePath = builder.Configuration["Aws:ParameterStorePath"];
+string? parameterStorePath = builder.Configuration["Aws:ParameterStorePath"];
 
 if (!string.IsNullOrWhiteSpace(parameterStorePath))
 {

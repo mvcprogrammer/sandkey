@@ -30,7 +30,7 @@ public sealed class BridgeClientTests
     {
         // Arrange
         using var httpClient = new HttpClient();
-        var queryFactory = Substitute.For<IBridgeQueryFactory>();
+        IBridgeQueryFactory? queryFactory = Substitute.For<IBridgeQueryFactory>();
         var logger = new FakeLogger<BridgeClient>();
 
         // Act

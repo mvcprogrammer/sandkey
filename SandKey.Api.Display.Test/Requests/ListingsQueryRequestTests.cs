@@ -24,8 +24,8 @@ public sealed class ListingsQueryRequestTests
 
         // Assert
         Assert.Empty(results);
-        Assert.Equal(ListingType.Sale, request.Type);
-        Assert.Equal(SortDirection.Descending, request.Order);
+        Assert.Equal(ListingType.SALE, request.Type);
+        Assert.Equal(SortDirection.DESCENDING, request.Order);
         Assert.Equal(9, request.PageSize);
     }
 

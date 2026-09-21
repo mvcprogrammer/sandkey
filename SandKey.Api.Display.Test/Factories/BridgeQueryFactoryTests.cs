@@ -110,7 +110,7 @@ public sealed class BridgeQueryFactoryTests
     {
         // Arrange
         var factory = CreateFactory();
-        var request = new ListingsQueryRequest { Type = ListingType.Lease };
+        var request = new ListingsQueryRequest { Type = ListingType.LEASE };
 
         // Act
         var uri = factory.CreateListingsUri(request).ToString();
@@ -123,9 +123,9 @@ public sealed class BridgeQueryFactoryTests
     /// <param name="sortDirection">Direction requested.</param>
     /// <param name="expected">Token Bridge expects.</param>
     [Theory]
-    [InlineData(SortDirection.Ascending, "order=asc")]
-    [InlineData(SortDirection.Descending, "order=desc")]
-    [InlineData(SortDirection.Unspecified, "order=desc")]
+    [InlineData(SortDirection.ASCENDING, "order=asc")]
+    [InlineData(SortDirection.DESCENDING, "order=desc")]
+    [InlineData(SortDirection.UNSPECIFIED, "order=desc")]
     public void CreateListingsUri_ShouldTransformTheSortDirection(SortDirection sortDirection, string expected)
     {
         // Arrange

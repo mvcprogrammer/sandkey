@@ -5,12 +5,12 @@ namespace SandKey.Api.Display.Enumerations;
 /// </summary>
 public enum ListingType
 {
-    /// <summary>No listing type was supplied. Treated as <see cref="SALE"/>.</summary>
-    UNSPECIFIED = 0,
+    /// <summary>No listing type was supplied. Treated as <see cref="Sale"/>.</summary>
+    Unspecified = 0,
 
     /// <summary>Residential property offered for sale.</summary>
-    SALE = 1,
+    Sale = 1,
 
     /// <summary>Residential property offered for lease.</summary>
-    LEASE = 2
+    Lease = 2
 }

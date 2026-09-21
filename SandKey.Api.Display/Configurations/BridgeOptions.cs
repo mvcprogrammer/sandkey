@@ -8,7 +8,7 @@ namespace SandKey.Api.Display.Configurations;
 public sealed class BridgeOptions
 {
     /// <summary>The configuration section these options bind to.</summary>
-    public const string SECTION_NAME = "Bridge";
+    public const string SectionName = "Bridge";
 
     /// <summary>Base address of the Bridge API.</summary>
     [Required]

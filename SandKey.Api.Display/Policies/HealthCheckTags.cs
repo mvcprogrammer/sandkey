@@ -9,5 +9,5 @@ public static class HealthCheckTags
     /// Marks a check as part of readiness. Part 6 keeps dependency checks out of liveness so a
     /// failing dependency stops traffic being routed here rather than restarting the process.
     /// </summary>
-    public const string READINESS = "ready";
+    public const string Readiness = "ready";
 }

@@ -44,7 +44,7 @@ public sealed class InquiriesController : ControllerBase
     /// forbids them in a URL, so they travel in the body here.
     /// </remarks>
     [HttpPost]
-    [EnableRateLimiting(RateLimitingPolicies.INQUIRIES)]
+    [EnableRateLimiting(RateLimitingPolicies.Inquiries)]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]

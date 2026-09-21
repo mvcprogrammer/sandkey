@@ -8,7 +8,7 @@ namespace SandKey.Api.Display.Configurations;
 public sealed class MailOptions
 {
     /// <summary>The configuration section these options bind to.</summary>
-    public const string SECTION_NAME = "Mail";
+    public const string SectionName = "Mail";
 
     /// <summary>Base address of the Mailgun API.</summary>
     [Required]

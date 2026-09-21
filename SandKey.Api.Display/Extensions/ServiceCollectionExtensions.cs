@@ -21,7 +21,7 @@ namespace SandKey.Api.Display.Extensions;
 public static class ServiceCollectionExtensions
 {
     /// <summary>Service name reported to the telemetry collector.</summary>
-    private const string SERVICE_NAME = "SandKey.Api.Display";
+    private const string ServiceName = "SandKey.Api.Display";
 
     /// <summary>
     /// Binds and validates configuration. Part 6 requires a misconfigured service to fail at
@@ -38,12 +38,12 @@ public static class ServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(configuration);
 
         services.AddOptions<BridgeOptions>()
-            .Bind(configuration.GetSection(BridgeOptions.SECTION_NAME))
+            .Bind(configuration.GetSection(BridgeOptions.SectionName))
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
         services.AddOptions<MailOptions>()
-            .Bind(configuration.GetSection(MailOptions.SECTION_NAME))
+            .Bind(configuration.GetSection(MailOptions.SectionName))
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
@@ -117,7 +117,7 @@ public static class ServiceCollectionExtensions
         {
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
-            options.AddPolicy(RateLimitingPolicies.INQUIRIES, static context =>
+            options.AddPolicy(RateLimitingPolicies.Inquiries, static context =>
                 RateLimitPartition.GetFixedWindowLimiter(
                     context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
                     static _ => new FixedWindowRateLimiterOptions
@@ -152,7 +152,7 @@ public static class ServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(services);
 
         services.AddHealthChecks()
-            .AddCheck<BridgeHealthCheck>("listing-feed", tags: [HealthCheckTags.READINESS]);
+            .AddCheck<BridgeHealthCheck>("listing-feed", tags: [HealthCheckTags.Readiness]);
 
         return services;
     }
@@ -174,7 +174,7 @@ public static class ServiceCollectionExtensions
         var hasCollector = !string.IsNullOrWhiteSpace(configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]);
 
         services.AddOpenTelemetry()
-            .ConfigureResource(resource => resource.AddService(SERVICE_NAME))
+            .ConfigureResource(resource => resource.AddService(ServiceName))
             .WithTracing(tracing =>
             {
                 tracing.AddAspNetCoreInstrumentation()

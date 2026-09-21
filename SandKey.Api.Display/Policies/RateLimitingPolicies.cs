@@ -9,5 +9,5 @@ public static class RateLimitingPolicies
     /// Limits inquiry submissions. The endpoint is unauthenticated because the kiosk has no
     /// concept of a user, so a limit is what stops it being used to mail arbitrary addresses.
     /// </summary>
-    public const string INQUIRIES = "inquiries";
+    public const string Inquiries = "inquiries";
 }

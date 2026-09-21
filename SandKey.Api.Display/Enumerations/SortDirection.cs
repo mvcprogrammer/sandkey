@@ -5,12 +5,12 @@ namespace SandKey.Api.Display.Enumerations;
 /// </summary>
 public enum SortDirection
 {
-    /// <summary>No direction was supplied. Treated as <see cref="DESCENDING"/>.</summary>
-    UNSPECIFIED = 0,
+    /// <summary>No direction was supplied. Treated as <see cref="Descending"/>.</summary>
+    Unspecified = 0,
 
     /// <summary>Lowest value first.</summary>
-    ASCENDING = 1,
+    Ascending = 1,
 
     /// <summary>Highest value first.</summary>
-    DESCENDING = 2
+    Descending = 2
 }

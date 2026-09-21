@@ -19,9 +19,9 @@ namespace SandKey.Api.Display.Test.Services;
 /// </summary>
 public sealed class InquiryServiceTests
 {
-    private const string VISITOR_EMAIL = "visitor@example.com";
-    private const string VISITOR_PHONE = "727-555-0100";
-    private const string OFFICE_EMAIL = "info.request@example.com";
+    private const string VisitorEmail = "visitor@example.com";
+    private const string VisitorPhone = "727-555-0100";
+    private const string OfficeEmail = "info.request@example.com";
 
     #region Constructor Tests
 
@@ -59,14 +59,14 @@ public sealed class InquiryServiceTests
         // Arrange
         var emailClient = Substitute.For<IEmailClient>();
         var service = CreateService(CreateListing(), emailClient, out _);
-        var request = new InquiryRequest { ListingKey = "key", EmailAddress = VISITOR_EMAIL };
+        var request = new InquiryRequest { ListingKey = "key", EmailAddress = VisitorEmail };
 
         // Act
         await service.SubmitAsync(request, CancellationToken.None);
 
         // Assert
         var message = CaptureMessage(emailClient);
-        Assert.Equal(VISITOR_EMAIL, message.To);
+        Assert.Equal(VisitorEmail, message.To);
         Assert.Contains("TB8412345", message.Subject, StringComparison.Ordinal);
         Assert.Contains("1 Somewhere Drive", message.Body, StringComparison.Ordinal);
     }
@@ -81,15 +81,15 @@ public sealed class InquiryServiceTests
         // Arrange
         var emailClient = Substitute.For<IEmailClient>();
         var service = CreateService(CreateListing(), emailClient, out _);
-        var request = new InquiryRequest { ListingKey = "key", PhoneNumber = VISITOR_PHONE };
+        var request = new InquiryRequest { ListingKey = "key", PhoneNumber = VisitorPhone };
 
         // Act
         await service.SubmitAsync(request, CancellationToken.None);
 
         // Assert
         var message = CaptureMessage(emailClient);
-        Assert.Equal(OFFICE_EMAIL, message.To);
-        Assert.Contains(VISITOR_PHONE, message.Body, StringComparison.Ordinal);
+        Assert.Equal(OfficeEmail, message.To);
+        Assert.Contains(VisitorPhone, message.Body, StringComparison.Ordinal);
         Assert.Contains("Contact Request", message.Subject, StringComparison.Ordinal);
     }
 
@@ -104,7 +104,7 @@ public sealed class InquiryServiceTests
         // Arrange
         var emailClient = Substitute.For<IEmailClient>();
         var service = CreateService(CreateListing(), emailClient, out _);
-        var request = new InquiryRequest { ListingKey = "key", EmailAddress = VISITOR_EMAIL };
+        var request = new InquiryRequest { ListingKey = "key", EmailAddress = VisitorEmail };
 
         // Act
         await service.SubmitAsync(request, CancellationToken.None);
@@ -123,7 +123,7 @@ public sealed class InquiryServiceTests
         var emailClient = Substitute.For<IEmailClient>();
         var listing = CreateListing() with { PropertyType = "Residential Lease", ListPrice = 20_000m };
         var service = CreateService(listing, emailClient, out _);
-        var request = new InquiryRequest { ListingKey = "key", EmailAddress = VISITOR_EMAIL };
+        var request = new InquiryRequest { ListingKey = "key", EmailAddress = VisitorEmail };
 
         // Act
         await service.SubmitAsync(request, CancellationToken.None);
@@ -141,7 +141,7 @@ public sealed class InquiryServiceTests
         // Arrange
         var emailClient = Substitute.For<IEmailClient>();
         var service = CreateService(CreateListing(), emailClient, out _);
-        var request = new InquiryRequest { ListingKey = "key", EmailAddress = VISITOR_EMAIL };
+        var request = new InquiryRequest { ListingKey = "key", EmailAddress = VisitorEmail };
 
         // Act
         await service.SubmitAsync(request, CancellationToken.None);
@@ -157,7 +157,7 @@ public sealed class InquiryServiceTests
     {
         // Arrange
         var service = CreateService(CreateListing(), Substitute.For<IEmailClient>(), out var logger);
-        var request = new InquiryRequest { ListingKey = "key", EmailAddress = VISITOR_EMAIL };
+        var request = new InquiryRequest { ListingKey = "key", EmailAddress = VisitorEmail };
 
         // Act
         await service.SubmitAsync(request, CancellationToken.None);
@@ -176,8 +176,8 @@ public sealed class InquiryServiceTests
     /// <param name="emailAddress">Address supplied, or null for a phone inquiry.</param>
     /// <param name="phoneNumber">Number supplied, or null for an email inquiry.</param>
     [Theory]
-    [InlineData(VISITOR_EMAIL, null)]
-    [InlineData(null, VISITOR_PHONE)]
+    [InlineData(VisitorEmail, null)]
+    [InlineData(null, VisitorPhone)]
     public async Task SubmitAsync_ShouldLogNothingThatIdentifiesTheVisitor(
         string? emailAddress,
         string? phoneNumber)
@@ -197,8 +197,8 @@ public sealed class InquiryServiceTests
         // Assert
         foreach (var record in logger.Collector.GetSnapshot())
         {
-            Assert.DoesNotContain(VISITOR_EMAIL, record.Message, StringComparison.OrdinalIgnoreCase);
-            Assert.DoesNotContain(VISITOR_PHONE, record.Message, StringComparison.Ordinal);
+            Assert.DoesNotContain(VisitorEmail, record.Message, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain(VisitorPhone, record.Message, StringComparison.Ordinal);
         }
     }
 
@@ -216,7 +216,7 @@ public sealed class InquiryServiceTests
             emailClient,
             CreateOptions(),
             new FakeLogger<InquiryService>());
-        var request = new InquiryRequest { ListingKey = "missing", EmailAddress = VISITOR_EMAIL };
+        var request = new InquiryRequest { ListingKey = "missing", EmailAddress = VisitorEmail };
 
         // Act
         var act = () => service.SubmitAsync(request, CancellationToken.None);
@@ -235,7 +235,7 @@ public sealed class InquiryServiceTests
         emailClient.SendAsync(Arg.Any<EmailMessage>(), Arg.Any<CancellationToken>())
             .ThrowsAsync(new MailDeliveryException());
         var service = CreateService(CreateListing(), emailClient, out var logger);
-        var request = new InquiryRequest { ListingKey = "key", EmailAddress = VISITOR_EMAIL };
+        var request = new InquiryRequest { ListingKey = "key", EmailAddress = VisitorEmail };
 
         // Act
         var act = () => service.SubmitAsync(request, CancellationToken.None);
@@ -259,7 +259,7 @@ public sealed class InquiryServiceTests
             CreateOptions(),
             new FakeLogger<InquiryService>());
         using var cancellation = new CancellationTokenSource();
-        var request = new InquiryRequest { ListingKey = "key", EmailAddress = VISITOR_EMAIL };
+        var request = new InquiryRequest { ListingKey = "key", EmailAddress = VisitorEmail };
 
         // Act
         await service.SubmitAsync(request, cancellation.Token);
@@ -310,7 +310,7 @@ public sealed class InquiryServiceTests
     {
         ApiKey = "test-api-key",
         Domain = "example.com",
-        FromAddress = OFFICE_EMAIL,
+        FromAddress = OfficeEmail,
         BccAddresses = ["manager@example.com"],
         Office = new OfficeOptions
         {

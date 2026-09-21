@@ -15,7 +15,7 @@ namespace SandKey.Api.Display.Handlers;
 /// </remarks>
 internal sealed class BridgeAccessTokenHandler : DelegatingHandler
 {
-    private const string ACCESS_TOKEN_PARAMETER = "access_token";
+    private const string AccessTokenParameter = "access_token";
 
     private readonly BridgeOptions _options;
 
@@ -58,13 +58,13 @@ internal sealed class BridgeAccessTokenHandler : DelegatingHandler
         var builder = new UriBuilder(requestUri);
         var query = builder.Query.TrimStart('?');
 
-        if (query.Contains(ACCESS_TOKEN_PARAMETER, StringComparison.Ordinal))
+        if (query.Contains(AccessTokenParameter, StringComparison.Ordinal))
         {
             return requestUri;
         }
 
         var separator = query.Length == 0 ? string.Empty : "&";
-        builder.Query = $"{query}{separator}{ACCESS_TOKEN_PARAMETER}={Uri.EscapeDataString(_options.AccessToken)}";
+        builder.Query = $"{query}{separator}{AccessTokenParameter}={Uri.EscapeDataString(_options.AccessToken)}";
 
         return builder.Uri;
     }

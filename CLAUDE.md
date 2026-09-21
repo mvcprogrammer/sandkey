@@ -35,7 +35,7 @@ The document is written to be consumed by engineers first and AI assistants seco
 * Project names follow `{Org}.{ProjectType}.{ProjectName}[.{OptionalSubComponent}]` (for example `SandKey.Api.Display`). The repository is named for the primary project; its test project lives alongside it.
 * Enable `TreatWarningsAsErrors` and the `Microsoft.CodeAnalysis.NetAnalyzers` analyzers in every project.
 * Enable nullable reference types (`<Nullable>enable</Nullable>`) in every project.
-* Keep a `.editorconfig` at the solution root that encodes the tool-enforceable rules in Parts 8 and 9 (formatting, naming rules for constants and test methods, and analyzer severities) so `dotnet format` and the analyzers enforce them. A matching `.editorconfig` accompanies this document.
+* Keep a `.editorconfig` at the solution root that encodes the tool-enforceable rules in Parts 8 and 9 (formatting, naming rules, and analyzer severities) so `dotnet format` and the analyzers enforce them. A matching `.editorconfig` accompanies this document.
 * Pin package versions and use `Directory.Packages.props` (central package management) for multi-project solutions.
 
 ## Folder Structure
@@ -364,11 +364,12 @@ Not applicable. There is no cache and no search index; the feed is read directly
 **Applies to:** all engineers.
 
 ## Casing
-* Constants: `SCREAMING_SNAKE_CASE`. This departs from the .NET default; the accompanying `.editorconfig` defines the naming rule and sets CA1707 (identifiers should not contain underscores) to `none` so it does not conflict with `TreatWarningsAsErrors`.
-* Namespaces, types, interfaces, methods, properties, events, enums, and enum members: `PascalCase`.
+Casing follows the Microsoft Framework Design Guidelines. The accompanying `.editorconfig` enforces every rule below as a build error.
+
+* Constants, namespaces, types, interfaces, methods, properties, events, enums, and enum members: `PascalCase`.
 * Parameters and locals: `camelCase`.
 * Private and internal fields: `_` prefix followed by `camelCase`. Public fields are not used; expose a property instead.
-* Test method names are the one exception to `PascalCase` methods: they use the underscore-delimited patterns in the Unit Tests below.
+* Test method names are the one exception to `PascalCase` methods: they use the underscore-delimited patterns in the Unit Tests below. The `.editorconfig` relaxes the method naming rule and CA1707 (identifiers should not contain underscores) for `*Tests.cs` files only.
 * Hungarian notation is not used.
 
 ## Extension Methods

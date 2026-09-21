@@ -15,10 +15,10 @@ namespace SandKey.Api.Display.Mappers;
 internal static class BridgeListingMapper
 {
     /// <summary>Media category the kiosk displays. Bridge also returns documents and virtual tours.</summary>
-    private const string PHOTO_CATEGORY = "Photo";
+    private const string PhotoCategory = "Photo";
 
     /// <summary>Path prefix photos are served under, handled by the CDN rather than by this API.</summary>
-    private const string MEDIA_PATH_PREFIX = "/media";
+    private const string MediaPathPrefix = "/media";
 
     /// <summary>Projects a listing onto the grid summary.</summary>
     /// <param name="payload">Listing as returned by Bridge.</param>
@@ -88,13 +88,13 @@ internal static class BridgeListingMapper
     private static List<MediaResponse> ToMedia(BridgeListingPayload payload, int maxPhotos) =>
         payload.Media
             .Where(media => media.MediaUrl is not null)
-            .Where(media => string.Equals(media.MediaCategory, PHOTO_CATEGORY, StringComparison.Ordinal))
+            .Where(media => string.Equals(media.MediaCategory, PhotoCategory, StringComparison.Ordinal))
             .OrderBy(media => media.Order)
             .Take(maxPhotos)
             .Select(media => new MediaResponse
             {
                 Order = media.Order,
-                Url = $"{MEDIA_PATH_PREFIX}{media.MediaUrl!.AbsolutePath}"
+                Url = $"{MediaPathPrefix}{media.MediaUrl!.AbsolutePath}"
             })
             .ToList();
 

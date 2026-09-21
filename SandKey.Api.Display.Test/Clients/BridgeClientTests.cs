@@ -16,10 +16,10 @@ namespace SandKey.Api.Display.Test.Clients;
 /// </summary>
 public sealed class BridgeClientTests
 {
-    private const string LISTINGS_BODY =
+    private const string ListingsBody =
         """{"success":true,"status":200,"total":42,"bundle":[{"ListingKey":"key-1","ListPrice":500000}]}""";
 
-    private const string LISTING_BODY =
+    private const string ListingBody =
         """{"success":true,"status":200,"bundle":{"ListingKey":"key-1","ListingId":"TB1"}}""";
 
     #region Constructor Tests
@@ -30,7 +30,7 @@ public sealed class BridgeClientTests
     {
         // Arrange
         using var httpClient = new HttpClient();
-        IBridgeQueryFactory? queryFactory = Substitute.For<IBridgeQueryFactory>();
+        IBridgeQueryFactory queryFactory = Substitute.For<IBridgeQueryFactory>();
         var logger = new FakeLogger<BridgeClient>();
 
         // Act
@@ -53,7 +53,7 @@ public sealed class BridgeClientTests
     public async Task GetListingsAsync_ShouldSerializeTheEnvelope()
     {
         // Arrange
-        using var handler = StubHttpMessageHandler.RespondingWith(HttpStatusCode.OK, LISTINGS_BODY);
+        using var handler = StubHttpMessageHandler.RespondingWith(HttpStatusCode.OK, ListingsBody);
         var client = CreateClient(handler);
 
         // Act
@@ -167,7 +167,7 @@ public sealed class BridgeClientTests
     public async Task GetListingsAsync_ShouldThrowArgumentNullException_WhenRequestIsNull()
     {
         // Arrange
-        using var handler = StubHttpMessageHandler.RespondingWith(HttpStatusCode.OK, LISTINGS_BODY);
+        using var handler = StubHttpMessageHandler.RespondingWith(HttpStatusCode.OK, ListingsBody);
         var client = CreateClient(handler);
 
         // Act
@@ -186,7 +186,7 @@ public sealed class BridgeClientTests
     public async Task GetListingAsync_ShouldSerializeTheListing()
     {
         // Arrange
-        using var handler = StubHttpMessageHandler.RespondingWith(HttpStatusCode.OK, LISTING_BODY);
+        using var handler = StubHttpMessageHandler.RespondingWith(HttpStatusCode.OK, ListingBody);
         var client = CreateClient(handler);
 
         // Act
@@ -224,7 +224,7 @@ public sealed class BridgeClientTests
     public async Task GetListingAsync_ShouldThrowArgumentException_WhenListingKeyIsMissing(string? listingKey)
     {
         // Arrange
-        using var handler = StubHttpMessageHandler.RespondingWith(HttpStatusCode.OK, LISTING_BODY);
+        using var handler = StubHttpMessageHandler.RespondingWith(HttpStatusCode.OK, ListingBody);
         var client = CreateClient(handler);
 
         // Act

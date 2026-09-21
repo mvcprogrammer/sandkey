@@ -43,7 +43,7 @@ app.MapControllers();
 app.MapHealthChecks("/health", new HealthCheckOptions { Predicate = static _ => false });
 app.MapHealthChecks("/ready", new HealthCheckOptions
 {
-    Predicate = static check => check.Tags.Contains(HealthCheckTags.READINESS)
+    Predicate = static check => check.Tags.Contains(HealthCheckTags.Readiness)
 });
 
 if (app.Environment.IsDevelopment())

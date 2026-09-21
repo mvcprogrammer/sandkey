@@ -13,7 +13,7 @@ namespace SandKey.Api.Display.Test.Handlers;
 /// </summary>
 public sealed class BridgeAccessTokenHandlerTests
 {
-    private const string ACCESS_TOKEN = "test-access-token";
+    private const string AccessToken = "test-access-token";
 
     #region Constructor Tests
 
@@ -49,7 +49,7 @@ public sealed class BridgeAccessTokenHandlerTests
         // Assert
         var sent = Assert.Single(stub.Requests).RequestUri!.AbsoluteUri;
         Assert.Contains("limit=9", sent, StringComparison.Ordinal);
-        Assert.Contains($"access_token={ACCESS_TOKEN}", sent, StringComparison.Ordinal);
+        Assert.Contains($"access_token={AccessToken}", sent, StringComparison.Ordinal);
     }
 
     /// <summary>Verifies that the token is appended to a URI with no query at all.</summary>
@@ -68,7 +68,7 @@ public sealed class BridgeAccessTokenHandlerTests
 
         // Assert
         var sent = Assert.Single(stub.Requests).RequestUri!.AbsoluteUri;
-        Assert.EndsWith($"?access_token={ACCESS_TOKEN}", sent, StringComparison.Ordinal);
+        Assert.EndsWith($"?access_token={AccessToken}", sent, StringComparison.Ordinal);
     }
 
     /// <summary>
@@ -125,7 +125,7 @@ public sealed class BridgeAccessTokenHandlerTests
     /// <returns>An invoker that runs the handler.</returns>
     private static HttpMessageInvoker CreateInvoker(
         StubHttpMessageHandler stub,
-        string accessToken = ACCESS_TOKEN)
+        string accessToken = AccessToken)
     {
         var options = Options.Create(new BridgeOptions { AccessToken = accessToken });
         var handler = new BridgeAccessTokenHandler(options) { InnerHandler = stub };

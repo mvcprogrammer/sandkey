@@ -18,7 +18,7 @@ namespace SandKey.Api.Display.Services;
 /// </remarks>
 internal sealed partial class InquiryService : IInquiryService
 {
-    private const string LEASE_MARKER = "LEASE";
+    private const string LeaseMarker = "LEASE";
 
     private readonly IListingService _listingService;
     private readonly IEmailClient _emailClient;
@@ -71,7 +71,7 @@ internal sealed partial class InquiryService : IInquiryService
     /// <returns>The message to deliver.</returns>
     private EmailMessage BuildVisitorMessage(ListingResponse listing, string emailAddress)
     {
-        var isLease = listing.PropertyType.Contains(LEASE_MARKER, StringComparison.OrdinalIgnoreCase);
+        var isLease = listing.PropertyType.Contains(LeaseMarker, StringComparison.OrdinalIgnoreCase);
 
         var body = new StringBuilder()
             .Append("Address: ").AppendLine(listing.UnparsedAddress)

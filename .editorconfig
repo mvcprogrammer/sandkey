@@ -71,21 +71,17 @@ csharp_style_var_when_type_is_apparent = true:suggestion
 csharp_style_var_for_built_in_types = false:suggestion
 csharp_style_var_elsewhere = false:suggestion
 
-# Analyzer adjustments required by Part 8
-# CA1707 (identifiers should not contain underscores) conflicts with SCREAMING_SNAKE_CASE constants and test names.
-dotnet_diagnostic.CA1707.severity = none
+# Naming (Part 8) follows the Microsoft Framework Design Guidelines. Rules are first-match-wins
+# in file order, so the most specific rule is listed first.
 
-# Naming (Part 8). Rules are first-match-wins in file order, so the most specific rule is listed first.
-
-# 1. Constants: SCREAMING_SNAKE_CASE (must precede the private-field rule, which would otherwise match private const fields)
-dotnet_naming_rule.constants_screaming.symbols = constants
-dotnet_naming_rule.constants_screaming.style = screaming_snake
-dotnet_naming_rule.constants_screaming.severity = error
+# 1. Constants: PascalCase. Roslyn matches enum members as const fields, so this rule covers them too.
+#    Must precede the private-field rule, which would otherwise match private const fields.
+dotnet_naming_rule.constants_pascal.symbols = constants
+dotnet_naming_rule.constants_pascal.style = pascal
+dotnet_naming_rule.constants_pascal.severity = error
 dotnet_naming_symbols.constants.applicable_kinds = field
 dotnet_naming_symbols.constants.applicable_accessibilities = *
 dotnet_naming_symbols.constants.required_modifiers = const
-dotnet_naming_style.screaming_snake.capitalization = all_upper
-dotnet_naming_style.screaming_snake.word_separator = _
 
 # 2. Private and internal fields: _camelCase
 dotnet_naming_rule.private_fields_underscore.symbols = private_fields
@@ -122,6 +118,8 @@ dotnet_naming_symbols.locals_and_parameters.applicable_accessibilities = *
 dotnet_naming_style.camel.capitalization = camel_case
 
 # Test classes (Part 8, Unit Tests): test method names use underscore-delimited patterns
-# such as Method_ShouldReturnValue and Arrange_ScenarioName, so the PascalCase method rule is relaxed here.
+# such as Method_ShouldReturnValue and Arrange_ScenarioName, so the PascalCase method rule and
+# CA1707 (identifiers should not contain underscores) are relaxed here, and only here.
 [*Tests.cs]
 dotnet_naming_rule.members_pascal.severity = none
+dotnet_diagnostic.CA1707.severity = none

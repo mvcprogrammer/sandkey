@@ -1,0 +1,31 @@
+# Build output
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+artifacts/
+
+# IDE
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.DotSettings.user
+
+# Test output
+TestResults/
+*.trx
+coverage*.xml
+coverage*.json
+
+# Local config and secrets
+appsettings.Local.json
+*.env
+
+# macOS
+.DS_Store
+
+# CDK
+infra/cdk.out/
+infra/node_modules/

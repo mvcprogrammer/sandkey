@@ -28,6 +28,13 @@ dotnet test
 dotnet run --project SandKey.Api.Display
 ```
 
+Running or debugging the `http` or `https` profile also starts the kiosk screen. The launch
+profile enables `Microsoft.AspNetCore.SpaProxy`, which runs `npm run dev` in the sibling
+`sandkey-display-web` checkout (or reuses a dev server already listening on `:5173`), waits for
+it, and redirects the browser from the API's root to it. Everything under `/api` is served here
+as usual, and the Vite dev server proxies the kiosk's own API calls back to `:5036`. The proxy is
+referenced in Debug builds only, so none of it reaches the Lambda package.
+
 Two settings have no default and the application will not start without them, by design:
 
 ```bash
@@ -115,9 +122,8 @@ stops the process at startup rather than failing on the first request that needs
 fields the detail mapper kept (waterfront features, community features, pet policy, year built,
 garage, and the modification timestamp); the rental email URL was built without a separating
 slash, so rental enquiries had been broken; and a lease price was rendered with two currency
-symbols. The three South Beach hotspots and the two Lighthouse Towers hotspots still map to one
-subdivision each — that is intentional, and `CondoServiceTests` asserts it so a future edit has to
-be deliberate about changing it.
+symbols. The condo hotspot filter that shipped with those fixes was removed on 2026-09-22 with the
+home screen's building selection; its mapping is recorded in `docs/bridge-contract.md` for the record.
 
 ## Deployment
 

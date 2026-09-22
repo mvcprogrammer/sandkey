@@ -54,10 +54,8 @@ internal sealed class MailgunEmailClient : IEmailClient
         using var content = new FormUrlEncodedContent(fields);
         using var request = new HttpRequestMessage(
             HttpMethod.Post,
-            new Uri($"{_options.Domain}/messages", UriKind.Relative))
-        {
-            Content = content
-        };
+            new Uri($"{_options.Domain}/messages", UriKind.Relative));
+        request.Content = content;
 
         request.Headers.Authorization = new AuthenticationHeaderValue(
             "Basic",

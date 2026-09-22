@@ -125,4 +125,8 @@ Reference points for the parity check in Phase 7:
 | `/Rental/2/0/117` | 2 | $5,500/Month | smallest non-empty set — good fixture |
 | `/Residential/Details/{key}` | — | — | 10 thumbnails, all `MediaCategory == "Photo"` |
 
+The `/Residential/` row records the legacy default. On 2026-09-22 the office asked for lowest price
+first, so a request with no direction now sorts ascending and `/Residential/` matches the
+`/Residential/1/0/0` row instead.
+
 Golden HTML for these is in `sandkey-display-web/golden/pages/`.

@@ -22,8 +22,8 @@ public sealed record ListingsQueryRequest : IValidatableObject
     /// <summary>Field to order by. Defaults to list price.</summary>
     public SortField Sort { get; init; } = SortField.ListPrice;
 
-    /// <summary>Direction to order in. Defaults to descending.</summary>
-    public SortDirection Order { get; init; } = SortDirection.Descending;
+    /// <summary>Direction to order in. Defaults to ascending, lowest price first, at the office's request.</summary>
+    public SortDirection Order { get; init; } = SortDirection.Ascending;
 
     /// <summary>Zero-based page index.</summary>
     [Range(0, 1000)]

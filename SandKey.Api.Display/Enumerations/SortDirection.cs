@@ -5,7 +5,7 @@ namespace SandKey.Api.Display.Enumerations;
 /// </summary>
 public enum SortDirection
 {
-    /// <summary>No direction was supplied. Treated as <see cref="Descending"/>.</summary>
+    /// <summary>No direction was supplied. Treated as <see cref="Ascending"/>.</summary>
     Unspecified = 0,
 
     /// <summary>Lowest value first.</summary>

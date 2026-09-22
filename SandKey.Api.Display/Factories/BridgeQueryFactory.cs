@@ -117,7 +117,7 @@ internal sealed class BridgeQueryFactory : IBridgeQueryFactory
 
     private static string ToOrder(SortDirection sortDirection) => sortDirection switch
     {
-        SortDirection.Ascending => "asc",
-        _ => "desc"
+        SortDirection.Descending => "desc",
+        _ => "asc"
     };
 }

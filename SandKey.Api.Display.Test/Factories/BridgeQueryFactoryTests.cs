@@ -51,7 +51,8 @@ public sealed class BridgeQueryFactoryTests
 
     /// <summary>
     /// Verifies that a default request produces the query recorded from the legacy kiosk:
-    /// active listings in 33767, nine per page, most expensive first.
+    /// active listings in 33767, nine per page, with the direction the office now asks for:
+    /// least expensive first.
     /// </summary>
     [Fact]
     public void CreateListingsUri_ShouldMatchTheRecordedContract_ForADefaultRequest()
@@ -69,7 +70,7 @@ public sealed class BridgeQueryFactoryTests
         Assert.Contains("limit=9", uri, StringComparison.Ordinal);
         Assert.Contains("PropertyType=Residential", uri, StringComparison.Ordinal);
         Assert.Contains("sortBy=ListPrice", uri, StringComparison.Ordinal);
-        Assert.Contains("order=desc", uri, StringComparison.Ordinal);
+        Assert.Contains("order=asc", uri, StringComparison.Ordinal);
         Assert.Contains("MlsStatus=Active", uri, StringComparison.Ordinal);
         Assert.Contains("PostalCode=33767", uri, StringComparison.Ordinal);
     }
@@ -125,7 +126,7 @@ public sealed class BridgeQueryFactoryTests
     [Theory]
     [InlineData(SortDirection.Ascending, "order=asc")]
     [InlineData(SortDirection.Descending, "order=desc")]
-    [InlineData(SortDirection.Unspecified, "order=desc")]
+    [InlineData(SortDirection.Unspecified, "order=asc")]
     public void CreateListingsUri_ShouldTransformTheSortDirection(SortDirection sortDirection, string expected)
     {
         // Arrange

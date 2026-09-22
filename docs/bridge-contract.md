@@ -107,9 +107,11 @@ Each listing carries a `Media` array of `{ Order, MediaUrl, MediaCategory }`. Th
 (`Mappers/StellarListingsToListings.cs:14`).
 
 `MediaUrl` is an absolute URL on the Bridge CDN. The legacy mapper rewrote it to
-`/photo{AbsolutePath}` so it would be proxied by `Controllers/Photo.cs`. The replacement serves
-the same path prefix as a CloudFront `/media/*` behavior pointed at the CDN origin, so the
-rewrite becomes `/media{AbsolutePath}` and no request touches the application tier.
+`/photo{AbsolutePath}` so it would be proxied by `Controllers/Photo.cs`. The replacement passes
+the URL through unchanged and the kiosk loads the photo from the CDN directly, so no request
+touches the application tier. A `/media/*` CloudFront behaviour in front of the CDN was tried
+first and is not possible: the CDN is itself CloudFront, which refuses to be another
+distribution's origin (2026-09-22).
 
 ## Observed live values (2026-09-21)
 

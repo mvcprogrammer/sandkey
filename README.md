@@ -51,9 +51,11 @@ There is no cache. The kiosk serves one screen and the feed answers in a few hun
 so a cache would add an invalidation problem and a second failure mode to buy latency nobody is
 waiting on. If that changes, `HybridCache` belongs in `ListingService`, behind `IListingService`.
 
-Photos are not proxied. `MediaResponse.Url` is a `/media/...` path served by a CloudFront behaviour
-pointed at the Bridge media CDN, so image bytes never pass through the application tier. The legacy
-application proxied every photo through a controller.
+Photos are not proxied. `MediaResponse.Url` is the Bridge media CDN URL as the feed supplies it, and
+the kiosk loads it directly, so image bytes never pass through the application tier. The legacy
+application proxied every photo through a controller. An earlier design fronted the CDN with a
+`/media/*` behaviour on the kiosk's own distribution; it cannot work, because the Bridge CDN is
+itself CloudFront and CloudFront refuses to act as an origin for another distribution.
 
 ## Standards
 
@@ -122,12 +124,11 @@ be deliberate about changing it.
 
 Everything lives in one CloudFormation stack, `sandkey-display`, defined in `infra/template.yaml`
 (AWS SAM). It creates the Lambda function and its function URL, the S3 bucket for the web bundle,
-the certificate, the Route 53 alias, and one CloudFront distribution with three behaviours:
+the certificate, the Route 53 alias, and one CloudFront distribution with two behaviours:
 
 | Path | Origin |
 |---|---|
 | `/api/*` | The function URL, reachable only with CloudFront's signature (origin access control) |
-| `/media/*` | The Bridge photo CDN, with the `/media` prefix stripped by a CloudFront Function |
 | everything else | The S3 bucket, with client-side routes rewritten to `index.html` |
 
 Because CloudFront signs requests to the function URL, a `POST` must carry the SHA-256 of its body

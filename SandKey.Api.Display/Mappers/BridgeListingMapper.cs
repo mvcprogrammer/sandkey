@@ -17,9 +17,6 @@ internal static class BridgeListingMapper
     /// <summary>Media category the kiosk displays. Bridge also returns documents and virtual tours.</summary>
     private const string PhotoCategory = "Photo";
 
-    /// <summary>Path prefix photos are served under, handled by the CDN rather than by this API.</summary>
-    private const string MediaPathPrefix = "/media";
-
     /// <summary>Projects a listing onto the grid summary.</summary>
     /// <param name="payload">Listing as returned by Bridge.</param>
     /// <returns>The summary shown in the results grid.</returns>
@@ -94,7 +91,9 @@ internal static class BridgeListingMapper
             .Select(media => new MediaResponse
             {
                 Order = media.Order,
-                Url = $"{MediaPathPrefix}{media.MediaUrl!.AbsolutePath}"
+                // The CDN URL as Bridge supplies it. It cannot be fronted by the kiosk's own
+                // distribution: CloudFront refuses to act as an origin for another CloudFront.
+                Url = media.MediaUrl!.AbsoluteUri
             })
             .ToList();
 

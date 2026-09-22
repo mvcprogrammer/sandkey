@@ -44,7 +44,7 @@ public sealed class BridgeListingMapperTests
 
         // Assert
         Assert.NotNull(summary.PrimaryPhoto);
-        Assert.Equal("/media/photos/first.jpeg", summary.PrimaryPhoto.Url);
+        Assert.Equal("https://cdn.example.com/photos/first.jpeg", summary.PrimaryPhoto.Url);
     }
 
     /// <summary>Verifies that a listing with no photos produces no primary photo.</summary>
@@ -141,8 +141,8 @@ public sealed class BridgeListingMapperTests
 
         // Assert
         Assert.Equal(2, detail.Media.Count);
-        Assert.Equal("/media/photos/first.jpeg", detail.Media[0].Url);
-        Assert.Equal("/media/photos/second.jpeg", detail.Media[1].Url);
+        Assert.Equal("https://cdn.example.com/photos/first.jpeg", detail.Media[0].Url);
+        Assert.Equal("https://cdn.example.com/photos/second.jpeg", detail.Media[1].Url);
         Assert.DoesNotContain(detail.Media, media => media.Url.Contains("brochure", StringComparison.Ordinal));
     }
 

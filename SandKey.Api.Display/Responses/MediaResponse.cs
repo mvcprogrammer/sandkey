@@ -9,8 +9,9 @@ public sealed record MediaResponse
     public required long Order { get; init; }
 
     /// <summary>
-    /// Path to the photo, relative to the site root, for example
-    /// <c>/media/735d922b/715185323/83dcefb7.jpeg</c>. Served by the CDN rather than by this API.
+    /// Absolute URL of the photo on the Bridge media CDN, for example
+    /// <c>https://dvvjkgh94f2v6.cloudfront.net/735d922b/715185323/83dcefb7.jpeg</c>. The kiosk
+    /// loads it directly; image bytes never pass through this API.
     /// </summary>
     public required string Url { get; init; }
 }

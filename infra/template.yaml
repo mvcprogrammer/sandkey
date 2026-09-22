@@ -1,8 +1,8 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >-
-  SandKey display kiosk: one CloudFront distribution serving the web bundle from S3, the API
-  from a Lambda function URL, and listing photos from the Bridge media CDN.
+  SandKey display kiosk: one CloudFront distribution serving the web bundle from S3 and the API
+  from a Lambda function URL. Listing photos load straight from the Bridge media CDN.
 
 Parameters:
   DomainName:
@@ -15,10 +15,6 @@ Parameters:
     Type: String
     Description: Systems Manager path the API reads its secrets from (Part 6).
     AllowedPattern: ^/.+[^/]$
-  MediaOriginDomain:
-    Type: String
-    Default: dvvjkgh94f2v6.cloudfront.net
-    Description: Bridge photo CDN, served under /media/* so image bytes never touch the API.
 
 Resources:
 
@@ -54,7 +50,11 @@ Resources:
                 - ssm:GetParametersByPath
                 - ssm:GetParameters
                 - ssm:GetParameter
-              Resource: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${ParameterStorePath}/*
+              # GetParametersByPath is authorised against the path itself, the others against
+              # the parameters beneath it, so both forms are needed.
+              Resource:
+                - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${ParameterStorePath}
+                - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${ParameterStorePath}/*
             - Sid: DecryptSecureStrings
               Effect: Allow
               Action: kms:Decrypt
@@ -161,22 +161,6 @@ Resources:
           return request;
         }
 
-  # MediaResponse.Url is "/media" + the CDN path; the prefix exists only to pick this behaviour.
-  MediaRewriteFunction:
-    Type: AWS::CloudFront::Function
-    Properties:
-      Name: !Sub ${AWS::StackName}-media-rewrite
-      AutoPublish: true
-      FunctionConfig:
-        Comment: Strip the /media prefix before forwarding to the Bridge CDN.
-        Runtime: cloudfront-js-2.0
-      FunctionCode: |
-        function handler(event) {
-          var request = event.request;
-          request.uri = request.uri.replace(/^\/media/, '');
-          return request;
-        }
-
   Distribution:
     Type: AWS::CloudFront::Distribution
     Properties:
@@ -204,11 +188,6 @@ Resources:
             CustomOriginConfig:
               OriginProtocolPolicy: https-only
               OriginSSLProtocols: [TLSv1.2]
-          - Id: media
-            DomainName: !Ref MediaOriginDomain
-            CustomOriginConfig:
-              OriginProtocolPolicy: https-only
-              OriginSSLProtocols: [TLSv1.2]
         DefaultCacheBehavior:
           TargetOriginId: web
           ViewerProtocolPolicy: redirect-to-https
@@ -230,16 +209,6 @@ Resources:
             # Managed-AllViewerExceptHostHeader: forwards query strings and every viewer header,
             # including the body hash a signed POST needs, without breaking the function URL host.
             OriginRequestPolicyId: b689b0a8-53d0-40ab-baf2-68738e2966ac
-          - PathPattern: /media/*
-            TargetOriginId: media
-            ViewerProtocolPolicy: redirect-to-https
-            AllowedMethods: [GET, HEAD]
-            Compress: true
-            # Managed-CachingOptimized
-            CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
-            FunctionAssociations:
-              - EventType: viewer-request
-                FunctionARN: !GetAtt MediaRewriteFunction.FunctionMetadata.FunctionARN
 
   DnsAliasIpv4:
     Type: AWS::Route53::RecordSet

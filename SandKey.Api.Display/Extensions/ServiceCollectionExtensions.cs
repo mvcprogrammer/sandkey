@@ -61,7 +61,6 @@ public static class ServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(services);
 
         services.AddTransient<BridgeAccessTokenHandler>();
-        services.AddSingleton<ICondoService, CondoService>();
         services.AddSingleton<IBridgeQueryFactory, BridgeQueryFactory>();
         services.AddScoped<IListingService, ListingService>();
         services.AddScoped<IInquiryService, InquiryService>();

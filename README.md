@@ -12,9 +12,8 @@ rebuild; the screen lives in `sandkey-display-web`.
 
 | | |
 |---|---|
-| `GET /api/display/listings?type=&condo=&sort=&order=&page=&pageSize=` | A page of listing summaries |
+| `GET /api/display/listings?type=&sort=&order=&page=&pageSize=` | A page of listing summaries |
 | `GET /api/display/listings/{listingKey}` | One listing in full |
-| `GET /api/display/condos` | The condominium hotspots the home screen filters by |
 | `POST /api/display/inquiries` | Send listing details to a visitor, or ask the office to call back |
 | `GET /health` | Liveness: process only |
 | `GET /ready` | Readiness: verifies the listing feed answers |
@@ -66,7 +65,7 @@ and there is one substitution. Each is a deliberate decision rather than an omis
 |---|---|
 | **Part 1, Multi-Tenancy** | Not applicable. One brokerage, one kiosk, one dataset. There is no tenant to discriminate on, and adding a constant tenant column would be ceremony rather than isolation. |
 | **Part 3, Identity and Access** | Not applicable. The kiosk is a screen in a window with no concept of a user, and every listing it shows is public IDX data. Rather than authenticate nobody, the one state-changing endpoint carries a fixed-window rate limit — without it, `POST /inquiries` would mail arbitrary addresses on demand. |
-| **Part 5, Caching and Search** | Deliberately omitted. See Architecture above. Eighteen condominiums and a few hundred listings do not need an inverted index. |
+| **Part 5, Caching and Search** | Deliberately omitted. See Architecture above. A few hundred listings do not need an inverted index. |
 | **Part 7, Telerik JustMock** | Substituted with NSubstitute. JustMock's commercial edition would make this repository unbuildable by anyone who clones it, including anyone evaluating it. Every other rule in Part 7 is followed: AAA comments, regions per method, `Create<Thing>()` fixtures, `Arrange_<Scenario>()` setups, `FakeLogger<T>` for log assertions, and an XML comment on every test method. |
 
 Parts 2, 4, 6, 8 and 9 are followed in full. `TreatWarningsAsErrors`, `EnableNETAnalyzers` and
@@ -147,7 +146,7 @@ a credential.
 
 ## Tests
 
-122 tests. The suite concentrates on the things that were historically untested and wrong: the
+112 tests. The suite concentrates on the things that were historically untested and wrong: the
 Bridge query shape against the contract recorded in `docs/bridge-contract.md`, the mapper
 projections including the fields the old one dropped, every failure mode of the feed client,
 the exception-to-status mapping, cancellation, options validation, and the rule that a visitor's

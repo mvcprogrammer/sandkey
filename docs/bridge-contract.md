@@ -29,7 +29,7 @@ v2/stellar/listings
   &fields={FIELDS}
   &MlsStatus=Active
   &PostalCode=33767
-  &SubdivisionName.in={CONDO}              # omitted when condoId is unmapped (0)
+  &SubdivisionName.in={CONDO}              # legacy only; the condo filter was removed 2026-09-22
 ```
 
 Assembled in `StellarListingsRouteData.Uri` (`StellarListingsRouteData.cs:33`). Note the offset is
@@ -70,6 +70,9 @@ Do not assume this holds. If a future Bridge change drops them, the detail page 
 "last refreshed" line silently. Add them to the request explicitly.
 
 ## Condo filter
+
+Removed on 2026-09-22 along with the home screen's building selection, which was its only caller.
+The legacy behaviour is kept here for the record.
 
 `CondoConverter.CondoNameById` maps the 18 image-map hotspot IDs to `SubdivisionName` values,
 pre-encoded with `%20` for spaces. Three pairs/triples are **intentionally** non-unique, so those

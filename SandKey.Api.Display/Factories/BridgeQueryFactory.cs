@@ -55,18 +55,14 @@ internal sealed class BridgeQueryFactory : IBridgeQueryFactory
     private static readonly string _fieldList = string.Join(',', _fields);
 
     private readonly BridgeOptions _options;
-    private readonly ICondoService _condoService;
 
     /// <summary>Creates the factory.</summary>
     /// <param name="options">Bridge settings, including the access token and the fixed filters.</param>
-    /// <param name="condoService">Resolves a hotspot id to the subdivision it filters on.</param>
-    public BridgeQueryFactory(IOptions<BridgeOptions> options, ICondoService condoService)
+    public BridgeQueryFactory(IOptions<BridgeOptions> options)
     {
         ArgumentNullException.ThrowIfNull(options);
-        ArgumentNullException.ThrowIfNull(condoService);
 
         _options = options.Value;
-        _condoService = condoService;
     }
 
     /// <inheritdoc/>
@@ -86,15 +82,6 @@ internal sealed class BridgeQueryFactory : IBridgeQueryFactory
             .Append("&fields=").Append(_fieldList)
             .Append("&MlsStatus=").Append(Uri.EscapeDataString(_options.MlsStatus))
             .Append("&PostalCode=").Append(Uri.EscapeDataString(_options.PostalCode));
-
-        var subdivisionName = _condoService.FindSubdivisionName(request.Condo);
-
-        // An empty filter matches nothing, so treat a blank name the same as an unknown condo
-        // rather than asking Bridge for listings in a subdivision that has no name.
-        if (!string.IsNullOrWhiteSpace(subdivisionName))
-        {
-            query.Append("&SubdivisionName.in=").Append(Uri.EscapeDataString(subdivisionName));
-        }
 
         return new Uri(query.ToString(), UriKind.Relative);
     }

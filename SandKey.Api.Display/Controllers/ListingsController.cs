@@ -27,7 +27,7 @@ public sealed class ListingsController : ControllerBase
     /// <summary>
     /// Returns a page of listings, filtered and ordered by the supplied query parameters.
     /// </summary>
-    /// <param name="request">Listing type, condominium, ordering, and paging.</param>
+    /// <param name="request">Listing type, ordering, and paging.</param>
     /// <param name="cancellationToken">Token that aborts the request.</param>
     /// <returns>A page of listing summaries.</returns>
     /// <response code="200">The page of listings. May be empty when nothing matches.</response>

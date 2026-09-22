@@ -96,20 +96,6 @@ public sealed class ListingsQueryRequestTests
         Assert.Contains(results, result => result.MemberNames.Contains(nameof(ListingsQueryRequest.PageSize)));
     }
 
-    /// <summary>Verifies that a negative condo id is rejected.</summary>
-    [Fact]
-    public void Validate_ShouldReportAnError_ForANegativeCondoId()
-    {
-        // Arrange
-        var request = new ListingsQueryRequest { Condo = -1 };
-
-        // Act
-        var results = Validate(request);
-
-        // Assert
-        Assert.Contains(results, result => result.MemberNames.Contains(nameof(ListingsQueryRequest.Condo)));
-    }
-
     #endregion
 
     #region Helper Methods

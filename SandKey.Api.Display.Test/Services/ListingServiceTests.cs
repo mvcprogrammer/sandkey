@@ -87,7 +87,7 @@ public sealed class ListingServiceTests
 
     /// <summary>
     /// Verifies that an empty result set comes back as an empty page rather than as an error.
-    /// A condo with no active listings is a normal outcome on the kiosk.
+    /// A feed page with nothing on it is a normal outcome on the kiosk.
     /// </summary>
     [Fact]
     public async Task GetListingsAsync_ShouldCompleteWithAnEmptyPage_WhenNothingMatches()

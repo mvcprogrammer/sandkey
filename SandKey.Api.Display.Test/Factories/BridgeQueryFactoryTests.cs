@@ -1,9 +1,7 @@
 using Microsoft.Extensions.Options;
-using NSubstitute;
 using SandKey.Api.Display.Configurations;
 using SandKey.Api.Display.Enumerations;
 using SandKey.Api.Display.Factories;
-using SandKey.Api.Display.Interfaces;
 using SandKey.Api.Display.Requests;
 
 namespace SandKey.Api.Display.Test.Factories;
@@ -22,24 +20,10 @@ public sealed class BridgeQueryFactoryTests
     public void BridgeQueryFactory_ShouldThrowArgumentNullException_WhenOptionsIsNull()
     {
         // Arrange
-        var condoService = Substitute.For<ICondoService>();
+        IOptions<BridgeOptions> options = null!;
 
         // Act
-        var act = () => new BridgeQueryFactory(null!, condoService);
-
-        // Assert
-        Assert.Throws<ArgumentNullException>(act);
-    }
-
-    /// <summary>Verifies that the factory rejects a null condo service.</summary>
-    [Fact]
-    public void BridgeQueryFactory_ShouldThrowArgumentNullException_WhenCondoServiceIsNull()
-    {
-        // Arrange
-        var options = CreateOptions();
-
-        // Act
-        var act = () => new BridgeQueryFactory(options, null!);
+        var act = () => new BridgeQueryFactory(options);
 
         // Assert
         Assert.Throws<ArgumentNullException>(act);
@@ -138,39 +122,6 @@ public sealed class BridgeQueryFactoryTests
 
         // Assert
         Assert.Contains(expected, uri, StringComparison.Ordinal);
-    }
-
-    /// <summary>Verifies that a known condo id adds the subdivision filter, encoded.</summary>
-    [Fact]
-    public void CreateListingsUri_ShouldFilterBySubdivision_ForAKnownCondo()
-    {
-        // Arrange
-        var factory = CreateFactory(Arrange_CondoResolvesTo(100, "LANDMARK TOWERS"));
-        var request = new ListingsQueryRequest { Condo = 100 };
-
-        // Act
-        var uri = factory.CreateListingsUri(request).ToString();
-
-        // Assert
-        Assert.Contains("&SubdivisionName.in=LANDMARK%20TOWERS", uri, StringComparison.Ordinal);
-    }
-
-    /// <summary>
-    /// Verifies that an unmapped condo id omits the filter entirely rather than sending an empty
-    /// one, which would match nothing.
-    /// </summary>
-    [Fact]
-    public void CreateListingsUri_ShouldOmitTheSubdivisionFilter_ForAnUnknownCondo()
-    {
-        // Arrange
-        var factory = CreateFactory();
-        var request = new ListingsQueryRequest { Condo = 999 };
-
-        // Act
-        var uri = factory.CreateListingsUri(request).ToString();
-
-        // Assert
-        Assert.DoesNotContain("SubdivisionName.in=", uri, StringComparison.Ordinal);
     }
 
     /// <summary>
@@ -283,28 +234,14 @@ public sealed class BridgeQueryFactoryTests
 
     #region Helper Methods
 
-    /// <summary>Builds a factory over the default settings and an empty condo lookup.</summary>
-    /// <param name="condoService">Condo lookup to use, or null for one that resolves nothing.</param>
+    /// <summary>Builds a factory over the default settings.</summary>
     /// <returns>The factory under test.</returns>
-    private static BridgeQueryFactory CreateFactory(ICondoService? condoService = null) =>
-        new(CreateOptions(), condoService ?? Substitute.For<ICondoService>());
+    private static BridgeQueryFactory CreateFactory() => new(CreateOptions());
 
     /// <summary>Builds the Bridge settings used across these tests.</summary>
     /// <returns>Options carrying a recognisable dummy token.</returns>
     private static IOptions<BridgeOptions> CreateOptions() =>
         Options.Create(new BridgeOptions { AccessToken = "test-access-token" });
-
-    /// <summary>Configures a condo lookup that resolves one id.</summary>
-    /// <param name="condoId">Id to resolve.</param>
-    /// <param name="subdivisionName">Subdivision it resolves to.</param>
-    /// <returns>The configured substitute.</returns>
-    private static ICondoService Arrange_CondoResolvesTo(int condoId, string subdivisionName)
-    {
-        var condoService = Substitute.For<ICondoService>();
-        condoService.FindSubdivisionName(condoId).Returns(subdivisionName);
-
-        return condoService;
-    }
 
     /// <summary>The fields the kiosk depends on, as recorded in the contract document.</summary>
     /// <returns>Field names expected in the query.</returns>

@@ -17,7 +17,7 @@ internal sealed record BridgeListingPayload
     /// <summary>Advertised price. A monthly figure for a lease.</summary>
     public decimal? ListPrice { get; init; }
 
-    /// <summary>Subdivision the property sits in. This is what the condo filter matches on.</summary>
+    /// <summary>Subdivision the property sits in.</summary>
     public string SubdivisionName { get; init; } = string.Empty;
 
     /// <summary>Street address as supplied by the listing office.</summary>

@@ -12,13 +12,6 @@ public sealed record ListingsQueryRequest : IValidatableObject
     /// <summary>Sale or lease. Defaults to sale.</summary>
     public ListingType Type { get; init; } = ListingType.Sale;
 
-    /// <summary>
-    /// Condominium hotspot id to restrict results to. Omit, or pass zero, for the whole of
-    /// Clearwater Beach. Valid ids come from the condos endpoint.
-    /// </summary>
-    [Range(0, int.MaxValue)]
-    public int Condo { get; init; }
-
     /// <summary>Field to order by. Defaults to list price.</summary>
     public SortField Sort { get; init; } = SortField.ListPrice;
 

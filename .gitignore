@@ -34,3 +34,7 @@ infra/node_modules/
 infra/.publish/
 infra/api.zip
 .aws-sam/
+
+# Personal coding standard and assistant config, kept out of the public repo
+CLAUDE.md
+.claude/

@@ -65,7 +65,8 @@ itself CloudFront and CloudFront refuses to act as an origin for another distrib
 
 ## Standards
 
-This repository follows the coding standard in `CLAUDE.md` (Parts 1–9). Three parts do not apply,
+This repository follows my personal C# and WebAPI coding standard (Parts 1–9), a document kept
+outside the public repository. Three parts do not apply,
 and there is one substitution. Each is a deliberate decision rather than an omission:
 
 | Rule | Decision |
@@ -124,6 +125,23 @@ garage, and the modification timestamp); the rental email URL was built without 
 slash, so rental enquiries had been broken; and a lease price was rendered with two currency
 symbols. The condo hotspot filter that shipped with those fixes was removed on 2026-09-22 with the
 home screen's building selection; its mapping is recorded in `docs/bridge-contract.md` for the record.
+
+## Branching and releases
+
+`main` is what is deployed and only moves by pull request from `develop`. `develop` is the
+integration branch and only moves by pull request from a feature or story branch
+(`feature/<short-name>`, `story/<id>-<short-name>`). Both branches are protected: no direct pushes,
+no force pushes, no deletion, and every change arrives through a pull request.
+
+* Feature branches are squash-merged into `develop`, so `develop` reads as one commit per piece of
+  work.
+* `develop` is merged into `main` with a merge commit, never squashed, so the two branches share
+  history and the next release pull request shows only what is new.
+* A release is a merge to `main` tagged `v<major>.<minor>.<patch>`, with `<Version>` in
+  `Directory.Build.props` bumped in the same pull request. Documentation-only merges are not
+  tagged. Version 1.0.0 is the squashed history up to this point.
+* A hotfix branches from `main`, merges back to `main` by pull request, and `main` is then merged
+  into `develop` so the fix is not lost.
 
 ## Deployment
 

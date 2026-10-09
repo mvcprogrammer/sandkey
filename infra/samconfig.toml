@@ -1,0 +1,11 @@
+version = 0.1
+
+[default.deploy.parameters]
+stack_name = "sandkey-display"
+region = "us-east-1"
+resolve_s3 = true
+s3_prefix = "sandkey-display"
+capabilities = "CAPABILITY_IAM"
+confirm_changeset = true
+fail_on_empty_changeset = false
+parameter_overrides = "DomainName=display.lightsplitters.com HostedZoneId=Z0401703JZCY0DMIP21V ParameterStorePath=/production/sandkey-api"

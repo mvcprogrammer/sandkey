@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web"><PropertyGroup>  <UserSecretsId>21bfb3f7-be2b-4bb0-a8cd-84a7fb8e0cb2</UserSecretsId>
+  </PropertyGroup>
+
+  <!-- Debugging locally starts the kiosk screen (sandkey-display-web, a Vite dev server) and
+       redirects the browser to it, so "run" shows the site rather than a bare API. The proxy
+       activates only through ASPNETCORE_HOSTINGSTARTUPASSEMBLIES in launchSettings.json, and
+       the reference is Debug-only so nothing of it reaches the Lambda package. -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <SpaRoot>../../sandkey-display-web/</SpaRoot>
+    <SpaProxyServerUrl>http://localhost:5173</SpaProxyServerUrl>
+    <SpaProxyLaunchCommand>npm run dev</SpaProxyLaunchCommand>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(Configuration)' == 'Debug'">
+    <PackageReference Include="Microsoft.AspNetCore.SpaProxy" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Amazon.Extensions.Configuration.SystemsManager" />
+    <PackageReference Include="Amazon.Lambda.AspNetCoreServer.Hosting" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
+    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Http" />
+  </ItemGroup>
+
+  <!-- Implementations are internal so the public surface is the interfaces and the contract
+       models. Part 7 still requires them to be tested, hence this. -->
+  <ItemGroup>
+    <InternalsVisibleTo Include="SandKey.Api.Display.Test" />
+    <!-- NSubstitute proxies internal interfaces through Castle DynamicProxy. -->
+    <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+  </ItemGroup>
+
+</Project>

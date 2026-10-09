@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="SandKey.Api.Display.Test/SandKey.Api.Display.Test.csproj" />
+  <Project Path="SandKey.Api.Display/SandKey.Api.Display.csproj" />
+</Solution>
